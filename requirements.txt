@@ -1,0 +1,5 @@
+pandas
+pyyaml
+requests
+snowflake-connector-python
+psycopg2-binary

@@ -14,22 +14,31 @@ def get_active_error():
 
 
 def get_snowflake_connection():
-    logger.info("Initializing Snowflake connection...")
+    logger.info(
+        "Connecting to test-account.snowflakecomputing.com"
+    )
 
     error = get_active_error()
 
-    if error == "snowflake_timeout":
-        logger.info("Connecting to Snowflake account...")
+    if error == "snowflake_auth":
 
-        time.sleep(2)
-
-        logger.error(
-            "Connection to Snowflake timed out after waiting for server response."
+        logger.info(
+            "Authenticating user demo_user"
         )
 
-        raise TimeoutError(
-            "250001: Could not connect to Snowflake backend after 2 second(s). "
-            "Verify network connectivity and account endpoint."
+        time.sleep(1)
+
+        logger.error(
+            "Authentication failed for user demo_user"
+        )
+
+        logger.error(
+            "Failed to establish session with Snowflake backend"
+        )
+
+        raise Exception(
+            "snowflake.connector.errors.DatabaseError: "
+            "250001 (08001): Incorrect username or password was specified."
         )
 
     logger.info("Snowflake connection established successfully.")

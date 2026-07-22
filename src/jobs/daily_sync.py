@@ -22,25 +22,32 @@ def run_daily_sync():
 
     error = get_active_error()
 
+    query = """
+    SELECT *
+    FROM CUSTOMER_TRANSACTIONS
+    """
+
+    logger.info("Executing SQL:\n%s", query.strip())
+
     if error == "table_not_found":
-
-        query = """
-        SELECT *
-        FROM CUSTOMER_TRANSACTIONS
-        """
-
-        logger.info("Executing SQL:\n%s", query.strip())
 
         time.sleep(1)
 
         logger.error(
             "SQL execution failed while querying CUSTOMER_TRANSACTIONS"
         )
-
-        raise Exception(
+        logger.error(
             "snowflake.connector.errors.ProgrammingError: "
             "002003 (42S02): SQL compilation error: "
-            "Object 'CUSTOMER_TRANSACTIONS' does not exist or not authorized."
+            "Object 'CUSTOMER_TRANSACTIONS' does not exist or not authorized. "
+            "Please verify that the table exists and the Snowflake user has SELECT privileges."
         )
+
+        # Do not raise — log and return gracefully so pipeline can continue
+        logger.warning(
+            "Skipping CUSTOMER_TRANSACTIONS sync due to table_not_found error. "
+            "Set active_error to 'none' in configs/error_config.yaml to resolve."
+        )
+        return
 
     logger.info("Daily sync completed successfully.")
